@@ -250,7 +250,6 @@ fi
 
 
 
-
 #------------
 #forecast
 #------------
@@ -284,25 +283,37 @@ fi
 #-station-name (returns station data)
 
 
-#flags
-#d datetime of reading
-#T apparent temperature
-#t actual temperature
-#temerature delta
-#c cloud
-#cloud_oktas
-#wind gust
-#dew point
-#p atmospheric pressure
-#h humidity
-#w wind direction
-#s wind speed
-#rainfall
-#rainfall_24hr
-#temp max
-#temp min
-#wind gust max
-#wind gust dir max
+
+
+# synoptic forecast
+# district forecast
+# location forecast
+#
+# datetime of reading
+# apparent temperature
+# actual temperature
+# temerature delta
+# cloud
+# cloud_oktas
+# wind gust kmh
+# wind gust knots
+# dew point
+# atmospheric pressure
+# humidity
+# wind direction
+# wind direction degrees
+# wind speed kmh
+# wind speed kmh
+# rain_hour
+# rain_ten
+# rainfall
+# rainfall_24hr
+# temp max
+# temp min
+# vis_km
+# wind gust max kmh
+# wind gust max knots
+# wind gust dir max
 
 
 #flags
@@ -358,8 +369,6 @@ fi
 #Y
 #z
 #Z
-
-
 
 
 #time="$(echo $STATION_OBS | xpath -q -e 'string(//period/@time-local)')"
