@@ -4,7 +4,7 @@
 DEGREES_CELCIUS=$'\xe2\x84\x83'
 DEGREES=$'\xc2\xb0'
 
-# files
+# end-points
 NSW_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
 NSW_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11020.xml
 
@@ -28,16 +28,20 @@ WA_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDW13010.xml
 
 
 # cached files
-# if file cached: use it
-# else curl it to cache: use it
+# if file cached
+#    use it
+# else
+#    curl it
+#    cache it
+#    use it
 function get_file() {
     CACHE="$1_C"
     RES="${!CACHE}"
     if [ ${RES:+1} ]; then
         echo "$RES"
     else
-        RES="$(curl -s ${!1})"
-        echo "$RES"
+        printf -v "$CACHE" "%s" "$(curl -s ${!1})"
+        echo "${!CACHE}"
     fi
 }
 
@@ -141,11 +145,12 @@ function forecast_district() {
 }
 
 
+#FIXME: it appears that there sometimes isn't an index at 0 (perhaps after a certain time at night?)
 #TODO: pass in index [0..3] (0 today, 1 tomorrow, etc)
 #TODO: pass in format
 # location forecast
 function forecast_location() {
-    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'0'"']')"
+    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'1'"']')"
     #strip leading text and double quotes
     location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
     precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
