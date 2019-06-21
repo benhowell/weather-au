@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # symbols
-DEGREES_CELCIUS=$'\xe2\x84\x83'
 DEGREES=$'\xc2\xb0'
 
 # end-points
@@ -28,12 +27,8 @@ WA_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDW13010.xml
 
 
 # cached files
-# if file cached
-#    use it
-# else
-#    curl it
-#    cache it
-#    use it
+# if file cached, use it
+# else curl end-point, cache file, use it
 function get_file() {
     CACHE="$1_C"
     RES="${!CACHE}"
@@ -150,7 +145,7 @@ function forecast_district() {
 #TODO: pass in format
 # location forecast
 function forecast_location() {
-    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'1'"']')"
+    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'0'"']')"
     #strip leading text and double quotes
     location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
     precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
@@ -255,73 +250,72 @@ fi
 
 
 
-#------------
-#forecast
-#------------
-
-#REGION
-#default always
-# <area aac="TAS_FA001" description="Tasmania" type="region">
-#       <text type="synoptic_situation"> text()
-
-#PUBLIC DISTRICT [index 0 to 3]
-#<area aac="TAS_PW011" description="King Island" type="public-district"
-#      <text type="forecast"> text
-#      <text type="uv_alert"> text
-
-#LOCATION [index 0 to 3]
-#<element type="forecast_icon_code">
-#    <element type="air_temperature_maximum" units="Celsius"> text
-#    <text type="precis"> text
 
 
+# --state (required)
+# Usage: --state=TAS
+# Options: [NSW,TAS,NT,QLD,SA,VIC,WA]
 
+# --stations
+# Usage: --stations
 
+# --forecast-districts
+# Usage: --forecast-districts
+
+# --forecast-locations
+# Usage: --forecast-locations
+
+# --forecast-synoptic
+# Usage: --forecast-synoptic
+
+# --pretty
+# Usage: --pretty
 
 
 
-
-
-
-#-state (req)
-#-stations (returns all station names)
-#-station-name (returns station data)
-
-
-
-
+# list forecast districts
+# list forecast locations
 # synoptic forecast
 # district forecast
 # location forecast
 #
+# list stations
+#
 # datetime of reading
+#
 # apparent temperature
 # actual temperature
 # temerature delta
+# temp max
+# temp min
+#
 # cloud
 # cloud_oktas
-# wind gust kmh
-# wind gust knots
-# dew point
-# atmospheric pressure
-# humidity
+# vis_km
+#
 # wind direction
 # wind direction degrees
 # wind speed kmh
 # wind speed kmh
+# wind gust kmh
+# wind gust knots
+# wind gust max kmh
+# wind gust max knots
+# wind gust dir max
+#
+# dew point
+# atmospheric pressure
+# humidity
+#
 # rain_hour
 # rain_ten
 # rainfall
 # rainfall_24hr
-# temp max
-# temp min
-# vis_km
-# wind gust max kmh
-# wind gust max knots
-# wind gust dir max
 
 
-#flags
+
+
+# format flags
 #a
 #A
 #b
