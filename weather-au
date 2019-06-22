@@ -27,8 +27,8 @@ WA_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDW13010.xml
 
 
 # cached files
-# if file cached, use it
-# else curl end-point, cache file, use it
+# if file cached, return it
+# else curl end-point, cache file, return it
 function get_file() {
     CACHE="$1_C"
     RES="${!CACHE}"
@@ -159,6 +159,66 @@ function forecast_location() {
 
 
 
+function obs_station() {
+    declare -A obs #bash 4
+    DATA="$(echo $1 | xpath -q -e '//station[@description='"'$2'"']')"
+    #raw XML
+    printf "%s\n" $DATA
+
+
+    obs=(["a"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
+         ["A"]=forecast precis # not observation!
+         ["b"]=forecast max temp # not observation!
+         ["B"]
+         ["c"]=cloud
+         ["C"]=cloud_oktas
+         ["d"]=dew point
+         ["D"]=wind direction
+         ["e"]=wind direction degrees
+         ["E"]=wind gust max kmh
+         ["f"]=wind gust max knots
+         ["F"]=wind gust dir max
+         ["g"]=wind_gust_kmh
+         ["G"]=wind_gust_knots
+         ["h"]=humidity
+         ...
+         ["m"]=temp min
+         ["M"]=temp max
+         ...
+         ["p"]=atmospheric pressure
+         ...
+         ["q"]=rain_hour
+         ["Q"]=rain_ten
+         ["r"]=rainfall
+         ["R"]=rainfall_24hr
+         ["s"]=wind_speed_kmh
+         ["S"]=wind_speed knots
+         ["t"]=actual temp
+         ["T"]="$(echo $DATA | xpath -q -e '//element[@type='"'apparent_temp'"']/text()')"
+         ["u"]=delta temp
+         ...
+         ["v"]=vis_km
+         ...
+        )
+
+    echo "${obs[@]}"
+
+    echo "${obs[b]}"
+
+    #echo "$DATA"
+    #strip leading text and double quotes
+    #location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
+    #precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
+    #temp="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature_maximum'"']/text()')"
+    #if [ $3 ]; then
+    #    print_header "Location forecast" "$location" "-"
+    #fi
+    #printf "%s %s%s%s\n" "$precis" "$temp" "$DEGREES" "C"
+    #if [ $3 ]; then printf %"s\n"; fi
+}
+
+
+
 for ARG in "$@"
 do
     K=$(echo $ARG | cut -f1 -d=)
@@ -249,6 +309,15 @@ if [ ${forecast_location:+1} ] && [ ${state:+1} ]; then
 fi
 
 
+# station observations
+if [ ${station:+1} ] && [ ${state:+1} ]; then
+    f=$(get_file "$state"_OBS)
+    if [ ${pretty:+1} ]; then
+        obs_station "$f" "$station" "$pretty"
+    else
+        obs_station "$f" "$station" "$format"
+    fi
+fi
 
 
 
@@ -271,46 +340,49 @@ fi
 # --pretty
 # Usage: --pretty
 
+# --format
+# Usage: --format="temp-apparent: %a%DC temp-actual:%A%DC "
 
 
-# list forecast districts
-# list forecast locations
-# synoptic forecast
-# district forecast
-# location forecast
+
+# * list forecast districts
+# * list forecast locations
+# * synoptic forecast
+# * district forecast
+# * location forecast
 #
-# list stations
+# * list stations
 #
-# datetime of reading
+# * datetime of reading
 #
-# apparent temperature
-# actual temperature
-# temerature delta
-# temp max
-# temp min
+# * apparent temperature
+# * actual temperature
+# * temerature delta
+# * temp max
+# * temp min
 #
-# cloud
-# cloud_oktas
-# vis_km
+# * cloud
+# * cloud_oktas
+# * vis_km
 #
-# wind direction
-# wind direction degrees
-# wind speed kmh
-# wind speed kmh
-# wind gust kmh
-# wind gust knots
-# wind gust max kmh
-# wind gust max knots
+# * wind direction
+# * wind direction degrees
+# * wind speed kmh
+# * wind speed knots
+# * wind gust kmh
+# * wind gust knots
+# * wind gust max kmh
+# * wind gust max knots
 # wind gust dir max
 #
-# dew point
-# atmospheric pressure
-# humidity
+# * dew point
+# * atmospheric pressure
+# * humidity
 #
-# rain_hour
-# rain_ten
-# rainfall
-# rainfall_24hr
+# * rain_hour
+# * rain_ten
+# * rainfall
+# * rainfall_24hr
 
 
 
