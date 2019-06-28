@@ -158,47 +158,62 @@ function forecast_location() {
 }
 
 
+#function extract_obs() {
+#    "$(echo $1 | xpath -q -e '//element[@type='"'$2'"']/text()')"
+#}
 
+
+#TODO: optionally get fcast data if requested in format string
 function obs_station() {
     declare -A obs #bash 4
-    DATA="$(echo $1 | xpath -q -e '//station[@description='"'$2'"']')"
+    OBS_F=$(get_file "$1"_OBS)
+
+    #FCAST_F=$(get_file "$1"_FCAST)
+
+    DATA="$(echo $o | xpath -q -e '//station[@description='"'$2'"']')"
     #raw XML
-    printf "%s\n" $DATA
+    #printf "%s\n" $DATA
 
 
-    obs=(["a"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
-         ["A"]=forecast precis # not observation!
-         ["b"]=forecast max temp # not observation!
+    obs=(
+         #["a"]=forecast precis # not observation!
+         #["A"]=forecast max temp # not observation!
+         ["b"]
          ["B"]
-         ["c"]=cloud
-         ["C"]=cloud_oktas
-         ["d"]=dew point
-         ["D"]=wind direction
-         ["e"]=wind direction degrees
-         ["E"]=wind gust max kmh
-         ["f"]=wind gust max knots
-         ["F"]=wind gust dir max
-         ["g"]=wind_gust_kmh
-         ["G"]=wind_gust_knots
-         ["h"]=humidity
+         ["c"]="$(echo $DATA | xpath -q -e '//element[@type='"'cloud'"']/text()')" #txt
+         #["c"]=extract_obs $DATA $2
+         ["C"]="$(echo $DATA | xpath -q -e '//element[@type='"'cloud_oktas'"']/text()')" #?
+         ["d"]="$(echo $DATA | xpath -q -e '//element[@type='"'dew_point'"']/text()')" #C
+         ["D"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_dir'"']/text()')" #dir
+         ["e"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_dir_deg'"']/text()')" #deg
+         ["E"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_kmh'"']/text()')" #km/h
+         ["f"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_spd'"']/text()')" #knots
+         ["F"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_dir'"']/text()')" #dir
+         ["g"]="$(echo $DATA | xpath -q -e '//element[@type='"'gust_kmh'"']/text()')" #km/h
+         ["G"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_gust_spd'"']/text()')" #knots
+         ["h"]="$(echo $DATA | xpath -q -e '//element[@type='"'rel-humidity'"']/text()')" #%
          ...
-         ["m"]=temp min
-         ["M"]=temp max
+         ["m"]="$(echo $DATA | xpath -q -e '//element[@type='"'minimum_air_temperature'"']/text()')" #C
+         ["M"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_air_temperature'"']/text()')" #C
          ...
-         ["p"]=atmospheric pressure
+         ["O"]="$(echo $DATA | xpath -q -e '//element[@type='"'qnh_pres'"']/text()')" #hPa
+         ["p"]="$(echo $DATA | xpath -q -e '//element[@type='"'pres'"']/text()')" #hPa
+         ["P"]="$(echo $DATA | xpath -q -e '//element[@type='"'msl_pres'"']/text()')" #hPa
          ...
-         ["q"]=rain_hour
-         ["Q"]=rain_ten
-         ["r"]=rainfall
-         ["R"]=rainfall_24hr
-         ["s"]=wind_speed_kmh
-         ["S"]=wind_speed knots
-         ["t"]=actual temp
-         ["T"]="$(echo $DATA | xpath -q -e '//element[@type='"'apparent_temp'"']/text()')"
-         ["u"]=delta temp
+         ["q"]="$(echo $DATA | xpath -q -e '//element[@type='"'rain_hour'"']/text()')" #mm
+         ["Q"]="$(echo $DATA | xpath -q -e '//element[@type='"'rain_ten'"']/text()')" #mm
+         ["r"]="$(echo $DATA | xpath -q -e '//element[@type='"'rainfall'"']/text()')" #mm
+         ["R"]="$(echo $DATA | xpath -q -e '//element[@type='"'rainfall_24hr'"']/text()')" #mm
+         ["s"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_spd_kmh'"']/text()')" km/h
+         ["S"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_spd'"']/text()')" #knots
+         ["t"]="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature'"']/text()')" #C
+         ["T"]="$(echo $DATA | xpath -q -e '//element[@type='"'apparent_temp'"']/text()')" #C
+         ["u"]="$(echo $DATA | xpath -q -e '//element[@type='"'delta_t'"']/text()')" #C
          ...
-         ["v"]=vis_km
+         ["v"]="$(echo $DATA | xpath -q -e '//element[@type='"'vis_km'"']/text()')" #km
          ...
+         ["z"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
+         ["Z"]="$(echo $DEGREES)"
         )
 
     echo "${obs[@]}"
@@ -311,11 +326,10 @@ fi
 
 # station observations
 if [ ${station:+1} ] && [ ${state:+1} ]; then
-    f=$(get_file "$state"_OBS)
     if [ ${pretty:+1} ]; then
-        obs_station "$f" "$station" "$pretty"
+        obs_station "$state" "$station" "$pretty"
     else
-        obs_station "$f" "$station" "$format"
+        obs_station "$state" "$station" "$format"
     fi
 fi
 
@@ -345,160 +359,11 @@ fi
 
 
 
-# * list forecast districts
-# * list forecast locations
-# * synoptic forecast
-# * district forecast
-# * location forecast
-#
-# * list stations
-#
-# * datetime of reading
-#
-# * apparent temperature
-# * actual temperature
-# * temerature delta
-# * temp max
-# * temp min
-#
-# * cloud
-# * cloud_oktas
-# * vis_km
-#
-# * wind direction
-# * wind direction degrees
-# * wind speed kmh
-# * wind speed knots
-# * wind gust kmh
-# * wind gust knots
-# * wind gust max kmh
-# * wind gust max knots
-# wind gust dir max
-#
-# * dew point
-# * atmospheric pressure
-# * humidity
-#
-# * rain_hour
-# * rain_ten
-# * rainfall
-# * rainfall_24hr
-
-
-
-
-# format flags
-#a
-#A
-#b
-#B
-#c
-#C
-#d
-#D
-#e
-#E
-#f
-#F
-#g
-#G
-#h
-#H
-#i
-#I
-#j
-#J
-#k
-#K
-#l
-#L
-#m
-#M
-#n
-#N
-#o
-#O
-#p
-#P
-#q
-#Q
-#r
-#R
-#s
-#S
-#t
-#T
-#u
-#U
-#v
-#V
-#w
-#W
-#x
-#X
-#y
-#Y
-#z
-#Z
-
-
-#time="$(echo $STATION_OBS | xpath -q -e 'string(//period/@time-local)')"
-#echo $time
-#temp_apparent="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'apparent_temp'"']/text()')"
-#echo $temp_apparent
-#cloud="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'cloud'"']/text()')"
-#echo $cloud
-
-#cloud_oktas="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'cloud_oktas'"']/text()')"
-#echo $cloud_oktas
-
-#temp_delta="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'delta_t'"']/text()')"
-#echo $temp_delta
-
-#wind_gust="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'gust_kmh'"']/text()')"
-#echo $wind_gust
-
-#temp_actual="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'air_temperature'"']/text()')"
-#echo $temp_actual
-
-#dew_point="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'dew_point'"']/text()')"
-#echo $dew_point
-
-#pres="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'pres'"']/text()')"
-#echo $pres
-
-#humidity="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'rel-humidity'"']/text()')"
-#echo $humidity
-
-#wind_dir="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'wind_dir'"']/text()')"
-#echo $wind_dir
-
-#wind_speed="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'wind_spd_kmh'"']/text()')"
-#echo $wind_speed
-
-#rainfall="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'rainfall'"']/text()')"
-#echo $rainfall
-
-#rainfall_24hr="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'rainfall_24hr'"']/text()')"
-#echo $rainfall_24hr
-
-#temp_max="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'maximum_air_temperature'"']/text()')"
-#echo $temp_max
-
-#temp_min="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'minimum_air_temperature'"']/text()')"
-#echo $temp_min
-
-#wind_gust_max="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'maximum_gust_kmh'"']/text()')"
-#echo $wind_gust_max
-
-#wind_gust_dir_max="$(echo $STATION_OBS | xpath -q -e '//element[@type='"'maximum_gust_dir'"']/text()')"
-#echo $wind_gust_dir_max
 
 
 
 
 
-#STATION_OBS="$(echo $OBS | xpath -q -e '//station[@stn-name='"'HOBART AIRPORT'"']')"
 #STATION_FCAST_TODAY="$(echo $FCAST | xpath -q -e '//area[@description='"'Hobart'"']/forecast-period[@index='"'0'"']')"
 #STATION_FCAST_TOMORROW="$(echo $FCAST | xpath -q -e '//area[@description='"'Hobart'"']/forecast-period[@index='"'1'"']')"
 #STATION_FCAST_OVERMORROW="$(echo $FCAST | xpath -q -e '//area[@description='"'Hobart'"']/forecast-period[@index='"'2'"']')"
