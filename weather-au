@@ -178,9 +178,13 @@ function extract_var() {
 function obs_station() {
     declare -A obs #bash 4
     OBS_F=$(get_file "$1"_OBS)
-    #FCAST_F=$(get_file "$1"_FCAST)
-
     DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$2'"']')"
+
+    #DIST_E="$(echo $DATA | xpath -q -e '//station/@forecast-district-id')"
+    #FCAST_F=$(get_file "$1"_FCAST)
+    #FCAST_DIST="$(echo $DIST_E | sed -e 's/\sforecast-district-id=//g' -e 's/\"//g')"
+    #echo $FCAST_DIST
+
     #raw XML
     #printf "%s\n" $DATA
 
@@ -226,7 +230,8 @@ function obs_station() {
         ["Z"]="$(echo $DEGREES)"
     )
 
-    echo "${obs[@]}"
+    #echo "${obs[@]}"
+    printf "%s %'.0f %'.0f %'.0f%sC" "mac" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
 }
 
 
