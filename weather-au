@@ -1,30 +1,41 @@
 #!/bin/bash
 
+#TODO: move to long form fcast
+
+# info
+# BOM OBS data is updated every 10 minutes.
+
 # symbols
 DEGREES=$'\xc2\xb0'
 
 # end-points
 NSW_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
 NSW_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11020.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11060.xml
 
 TAS_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml
 TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16000.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16710.xml
 
 NT_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml
 NT_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD10207.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDD10207.xml
 
 QLD_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml
 QLD_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ10606.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ11295.xml
 
 SA_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml
 SA_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDS11055.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDS10044.xml
 
 VIC_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml
 VIC_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDV10750.xml
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDV10753.xml
 
 WA_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml
 WA_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDW13010.xml
-
+# ftp://ftp.bom.gov.au/anon/gen/fwo/IDW14199.xml
 
 # cached files
 # if file cached, return it
@@ -158,78 +169,64 @@ function forecast_location() {
 }
 
 
-#function extract_obs() {
-#    "$(echo $1 | xpath -q -e '//element[@type='"'$2'"']/text()')"
-#}
+function extract_var() {
+    echo $1 | xpath -q -e '//element[@type='"'$2'"']/text()'
+}
 
 
 #TODO: optionally get fcast data if requested in format string
 function obs_station() {
     declare -A obs #bash 4
     OBS_F=$(get_file "$1"_OBS)
-
     #FCAST_F=$(get_file "$1"_FCAST)
 
-    DATA="$(echo $o | xpath -q -e '//station[@description='"'$2'"']')"
+    DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$2'"']')"
     #raw XML
     #printf "%s\n" $DATA
 
 
+
+
     obs=(
-         #["a"]=forecast precis # not observation!
-         #["A"]=forecast max temp # not observation!
-         ["b"]
-         ["B"]
-         ["c"]="$(echo $DATA | xpath -q -e '//element[@type='"'cloud'"']/text()')" #txt
-         #["c"]=extract_obs $DATA $2
-         ["C"]="$(echo $DATA | xpath -q -e '//element[@type='"'cloud_oktas'"']/text()')" #?
-         ["d"]="$(echo $DATA | xpath -q -e '//element[@type='"'dew_point'"']/text()')" #C
-         ["D"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_dir'"']/text()')" #dir
-         ["e"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_dir_deg'"']/text()')" #deg
-         ["E"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_kmh'"']/text()')" #km/h
-         ["f"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_spd'"']/text()')" #knots
-         ["F"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_gust_dir'"']/text()')" #dir
-         ["g"]="$(echo $DATA | xpath -q -e '//element[@type='"'gust_kmh'"']/text()')" #km/h
-         ["G"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_gust_spd'"']/text()')" #knots
-         ["h"]="$(echo $DATA | xpath -q -e '//element[@type='"'rel-humidity'"']/text()')" #%
-         ...
-         ["m"]="$(echo $DATA | xpath -q -e '//element[@type='"'minimum_air_temperature'"']/text()')" #C
-         ["M"]="$(echo $DATA | xpath -q -e '//element[@type='"'maximum_air_temperature'"']/text()')" #C
-         ...
-         ["O"]="$(echo $DATA | xpath -q -e '//element[@type='"'qnh_pres'"']/text()')" #hPa
-         ["p"]="$(echo $DATA | xpath -q -e '//element[@type='"'pres'"']/text()')" #hPa
-         ["P"]="$(echo $DATA | xpath -q -e '//element[@type='"'msl_pres'"']/text()')" #hPa
-         ...
-         ["q"]="$(echo $DATA | xpath -q -e '//element[@type='"'rain_hour'"']/text()')" #mm
-         ["Q"]="$(echo $DATA | xpath -q -e '//element[@type='"'rain_ten'"']/text()')" #mm
-         ["r"]="$(echo $DATA | xpath -q -e '//element[@type='"'rainfall'"']/text()')" #mm
-         ["R"]="$(echo $DATA | xpath -q -e '//element[@type='"'rainfall_24hr'"']/text()')" #mm
-         ["s"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_spd_kmh'"']/text()')" km/h
-         ["S"]="$(echo $DATA | xpath -q -e '//element[@type='"'wind_spd'"']/text()')" #knots
-         ["t"]="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature'"']/text()')" #C
-         ["T"]="$(echo $DATA | xpath -q -e '//element[@type='"'apparent_temp'"']/text()')" #C
-         ["u"]="$(echo $DATA | xpath -q -e '//element[@type='"'delta_t'"']/text()')" #C
-         ...
-         ["v"]="$(echo $DATA | xpath -q -e '//element[@type='"'vis_km'"']/text()')" #km
-         ...
-         ["z"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
-         ["Z"]="$(echo $DEGREES)"
-        )
+        #["a"]=forecast precis # not observation!
+        #["A"]=forecast max temp # not observation!
+
+        ["c"]="$(extract_var "$DATA" cloud)"                   # text
+        ["C"]="$(extract_var "$DATA" cloud_oktas)"             # ?
+        ["d"]="$(extract_var "$DATA" dew_point)"               # C
+        ["D"]="$(extract_var "$DATA" wind_dir)"                # direction
+        ["e"]="$(extract_var "$DATA" wind_dir_deg)"            # degrees
+        ["E"]="$(extract_var "$DATA" maximum_gust_kmh)"        # km/h
+        ["f"]="$(extract_var "$DATA" maximum_gust_spd)"        # knots
+        ["F"]="$(extract_var "$DATA" maximum_gust_dir)"        # direction
+        ["g"]="$(extract_var "$DATA" gust_kmh)"                # km/h
+        ["G"]="$(extract_var "$DATA" wind_gust_spd)"           # knots
+        ["h"]="$(extract_var "$DATA" rel-humidity)"            # %
+
+        ["m"]="$(extract_var "$DATA" minimum_air_temperature)" # C
+        ["M"]="$(extract_var "$DATA" maximum_air_temperature)" # C
+
+        ["O"]="$(extract_var "$DATA" qnh_pres)"                # hPa
+        ["p"]="$(extract_var "$DATA" pres)"                    # hPa
+        ["P"]="$(extract_var "$DATA" msl_pres)"                # hPa
+
+        ["q"]="$(extract_var "$DATA" rain_hr)"                 # mm
+        ["Q"]="$(extract_var "$DATA" rain_ten)"                # mm
+        ["r"]="$(extract_var "$DATA" rainfall)"                # mm
+        ["R"]="$(extract_var "$DATA" rainfall_24hr)"           # mm
+        ["s"]="$(extract_var "$DATA" wind_spd_kmh)"            # km/h
+        ["S"]="$(extract_var "$DATA" wind_spd)"                # knots
+        ["t"]="$(extract_var "$DATA" air_temperature)"         # C
+        ["T"]="$(extract_var "$DATA" apparent_temp)"           # C
+        ["u"]="$(extract_var "$DATA" delta_t)"                 # C
+
+        ["v"]="$(extract_var "$DATA" vis_km)"                  # km
+
+        ["z"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
+        ["Z"]="$(echo $DEGREES)"
+    )
 
     echo "${obs[@]}"
-
-    echo "${obs[b]}"
-
-    #echo "$DATA"
-    #strip leading text and double quotes
-    #location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
-    #precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
-    #temp="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature_maximum'"']/text()')"
-    #if [ $3 ]; then
-    #    print_header "Location forecast" "$location" "-"
-    #fi
-    #printf "%s %s%s%s\n" "$precis" "$temp" "$DEGREES" "C"
-    #if [ $3 ]; then printf %"s\n"; fi
 }
 
 
