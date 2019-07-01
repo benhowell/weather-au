@@ -156,7 +156,7 @@ function forecast_district() {
 #TODO: pass in format
 # location forecast
 function forecast_location() {
-    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'1'"']')"
+    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'0'"']')"
     #strip leading text and double quotes
     location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
     precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
