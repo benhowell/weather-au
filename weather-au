@@ -14,8 +14,8 @@ NSW_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11020.xml
 # ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11060.xml
 
 TAS_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml
-TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16000.xml
-# ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16710.xml
+#TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16000.xml
+TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16710.xml
 
 NT_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml
 NT_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD10207.xml
@@ -156,15 +156,20 @@ function forecast_district() {
 #TODO: pass in format
 # location forecast
 function forecast_location() {
-    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'0'"']')"
+    DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'1'"']')"
     #strip leading text and double quotes
     location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
     precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
     temp="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature_maximum'"']/text()')"
-    if [ $3 ]; then
-        print_header "Location forecast" "$location" "-"
-    fi
-    printf "%s %s%s%s\n" "$precis" "$temp" "$DEGREES" "C"
+    pop="$(echo $DATA | xpath -q -e '//text[@type='"'probability_of_precipitation'"']/text()')"
+    pr="$(echo $DATA | xpath -q -e '//element[@type='"'precipitation_range'"']/text()')"
+    if [ $3 ]; then print_header "Location forecast" "$location" "-"; fi
+
+    if [ ${pr:+1} ]; then r_pr=" $pr"; else r_pr=""; fi
+    if [ ${temp:+1} ]; then r_temp="$(printf " %s%sC" "$temp" "$DEGREES")"
+    else r_temp=""; fi
+
+    printf "%s [%s%s]%s /" "$precis" "$pop" "$r_pr" "$r_temp"
     if [ $3 ]; then printf %"s\n"; fi
 }
 
@@ -179,12 +184,8 @@ function obs_station() {
     declare -A obs #bash 4
     OBS_F=$(get_file "$1"_OBS)
     DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$2'"']')"
-
-    #DIST_E="$(echo $DATA | xpath -q -e '//station/@forecast-district-id')"
-    #FCAST_F=$(get_file "$1"_FCAST)
-    #FCAST_DIST="$(echo $DIST_E | sed -e 's/\sforecast-district-id=//g' -e 's/\"//g')"
-    #echo $FCAST_DIST
-
+    FCAST_F=$(get_file "$1"_FCAST)
+    FCAST="$(forecast_location "$FCAST_F" "$2")"
     #raw XML
     #printf "%s\n" $DATA
 
@@ -231,7 +232,10 @@ function obs_station() {
     )
 
     #echo "${obs[@]}"
-    printf "%s %'.0f %'.0f %'.0f%sC" "mac" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
+    #printf "%s %'.0f %'.0f %'.0f%sC" "mac" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
+    #printf "m%'.0f a%'.0f c%'.0f%sC" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
+    #printf "m%'.0f%sC a%'.0f%sC c%'.0f%sC" "${obs[M]}" "${obs[Z]}" "${obs[T]}" "${obs[Z]}" "${obs[t]}" "${obs[Z]}"
+    printf "%s %'.0f%sC" "$FCAST" "${obs[t]}" "$DEGREES"
 }
 
 
