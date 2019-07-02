@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#TODO: move to long form fcast
 
 # info
 # This script was created to give me a basic tmux status line weather report.

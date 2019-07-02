@@ -1,5 +1,9 @@
 # weather-au
-Terminal utilitity for weather forecasts and observations for Australia using live BOM data. Totally WIP, most likely broken and not intended for general use.
+Terminal utilitity for weather forecasts and observations for Australia using live BOM data. Totally WIP, most likely broken and not intended for general use. This purpose of this script is to give me a basic tmux status line weather report.
+
+
+BOM OBS data is updated every 10 minutes. This script is currently run as a cron every 3 minutes and writes result to file. The file is read by tmux every minute.
+
 
 ## Usage
 
