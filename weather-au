@@ -3,7 +3,10 @@
 #TODO: move to long form fcast
 
 # info
-# BOM OBS data is updated every 10 minutes.
+# This script was created to give me a basic tmux status line weather report.
+# BOM OBS data is updated every 10 minutes. This script is currently run as a
+# cron every 3 minutes and writes result to file. The file is read by tmux
+# every minute.
 
 # symbols
 DEGREES=$'\xc2\xb0'
@@ -14,8 +17,8 @@ NSW_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11020.xml
 # ftp://ftp.bom.gov.au/anon/gen/fwo/IDN11060.xml
 
 TAS_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml
-#TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16000.xml
-TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16710.xml
+#TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16000.xml #district
+TAS_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDT16710.xml #long form
 
 NT_OBS=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml
 NT_FCAST=ftp://ftp.bom.gov.au/anon/gen/fwo/IDD10207.xml
@@ -121,6 +124,8 @@ function list_forecast_locations() {
     fi
 }
 
+#FIXME: synoptic not always included in district forecast XML
+#FIXME: use coastal waters forecast XML instead
 #TODO: pass in format????
 # synoptic forecast (region)
 function forecast_synoptic() {
@@ -128,6 +133,7 @@ function forecast_synoptic() {
     l="$(echo $DATA | xpath -q -e '//area/@description')"
     #strip leading text and double quotes
     location="$(echo "$l" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
+    echo $location
     if [ $3 ]; then
         print_header "Synoptic forecast" "$location" "-"
     fi
@@ -136,6 +142,7 @@ function forecast_synoptic() {
 }
 
 
+#FIXME: needs to use district forecast XML
 #TODO: pass in index [0..3] (0 today, 1 tomorrow, etc)
 #TODO: pass in format????
 # district forecast
@@ -150,7 +157,8 @@ function forecast_district() {
     if [ $3 ]; then printf %"s\n"; fi
 }
 
-
+#FIXME: formatting of output needs to be defined (i.e. is hardcoded to obs one liner)
+#FIXME: needs to use long form XML
 #FIXME: it appears that there sometimes isn't an index at 0 (perhaps after a certain time at night?)
 #TODO: pass in index [0..3] (0 today, 1 tomorrow, etc)
 #TODO: pass in format
