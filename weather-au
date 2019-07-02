@@ -164,12 +164,10 @@ function forecast_location() {
     pop="$(echo $DATA | xpath -q -e '//text[@type='"'probability_of_precipitation'"']/text()')"
     pr="$(echo $DATA | xpath -q -e '//element[@type='"'precipitation_range'"']/text()')"
     if [ $3 ]; then print_header "Location forecast" "$location" "-"; fi
-
     if [ ${pr:+1} ]; then r_pr=" $pr"; else r_pr=""; fi
     if [ ${temp:+1} ]; then r_temp="$(printf " %s%sC" "$temp" "$DEGREES")"
     else r_temp=""; fi
-
-    printf "%s [%s%s]%s /" "$precis" "$pop" "$r_pr" "$r_temp"
+    printf "%s [%s%s]%s |" "$precis" "$pop" "$r_pr" "$r_temp"
     if [ $3 ]; then printf %"s\n"; fi
 }
 
@@ -235,7 +233,7 @@ function obs_station() {
     #printf "%s %'.0f %'.0f %'.0f%sC" "mac" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
     #printf "m%'.0f a%'.0f c%'.0f%sC" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
     #printf "m%'.0f%sC a%'.0f%sC c%'.0f%sC" "${obs[M]}" "${obs[Z]}" "${obs[T]}" "${obs[Z]}" "${obs[t]}" "${obs[Z]}"
-    printf "%s %'.0f%sC" "$FCAST" "${obs[t]}" "$DEGREES"
+    printf "%s %'.0f%sC / %'.0f%sC" "$FCAST" "${obs[T]}" "$DEGREES" "${obs[t]}" "$DEGREES"
 }
 
 
