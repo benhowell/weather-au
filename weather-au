@@ -165,17 +165,17 @@ function forecast_district() {
 function forecast_location() {
     DATA="$(echo $1 | xpath -q -e '//area[@description='"'$2'"']/forecast-period[@index='"'0'"']')"
     #strip leading text and double quotes
-    location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
+    #location="$(echo "$2" | sed -e 's/\sdescription=//g' -e 's/\"//g')"
     precis="$(echo $DATA | xpath -q -e '//text[@type='"'precis'"']/text()')"
     temp="$(echo $DATA | xpath -q -e '//element[@type='"'air_temperature_maximum'"']/text()')"
     pop="$(echo $DATA | xpath -q -e '//text[@type='"'probability_of_precipitation'"']/text()')"
     pr="$(echo $DATA | xpath -q -e '//element[@type='"'precipitation_range'"']/text()')"
-    if [ $3 ]; then print_header "Location forecast" "$location" "-"; fi
+    #if [ $3 ]; then print_header "Location forecast" "$location" "-"; fi
     if [ ${pr:+1} ]; then r_pr=" $pr"; else r_pr=""; fi
     if [ ${temp:+1} ]; then r_temp="$(printf " %s%sC" "$temp" "$DEGREES")"
     else r_temp=""; fi
     printf "%s [%s%s]%s |" "$precis" "$pop" "$r_pr" "$r_temp"
-    if [ $3 ]; then printf %"s\n"; fi
+    #if [ $3 ]; then printf %"s\n"; fi
 }
 
 
@@ -185,65 +185,73 @@ function extract_var() {
 
 
 #TODO: optionally get fcast data if requested in format string
-function obs_station() {
-    declare -A obs #bash 4
-    OBS_F=$(get_file "$1"_OBS)
-    DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$2'"']')"
-    FCAST_F=$(get_file "$1"_FCAST)
-    FCAST="$(forecast_location "$FCAST_F" "$2")"
+#function obs_station() {
+    #declare -A obs #bash 4
+#    OBS_F=$(get_file "$1"_OBS)
+#    DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$2'"']')"
+#    FCAST_F=$(get_file "$1"_FCAST)
+#    FCAST="$(forecast_location "$FCAST_F" "$2")"
     #raw XML
     #printf "%s\n" $DATA
 
 
 
 
-    obs=(
-        #["a"]=forecast precis # not observation!
-        #["A"]=forecast max temp # not observation!
+   #obs=(
+        ##["a"]=forecast precis # not observation!
+        ##["A"]=forecast max temp # not observation!
 
-        ["c"]="$(extract_var "$DATA" cloud)"                   # text
-        ["C"]="$(extract_var "$DATA" cloud_oktas)"             # ?
-        ["d"]="$(extract_var "$DATA" dew_point)"               # C
-        ["D"]="$(extract_var "$DATA" wind_dir)"                # direction
-        ["e"]="$(extract_var "$DATA" wind_dir_deg)"            # degrees
-        ["E"]="$(extract_var "$DATA" maximum_gust_kmh)"        # km/h
-        ["f"]="$(extract_var "$DATA" maximum_gust_spd)"        # knots
-        ["F"]="$(extract_var "$DATA" maximum_gust_dir)"        # direction
-        ["g"]="$(extract_var "$DATA" gust_kmh)"                # km/h
-        ["G"]="$(extract_var "$DATA" wind_gust_spd)"           # knots
-        ["h"]="$(extract_var "$DATA" rel-humidity)"            # %
+        #["c"]="$(extract_var "$DATA" cloud)"                   # text
+        #["C"]="$(extract_var "$DATA" cloud_oktas)"             # ?
+        #["d"]="$(extract_var "$DATA" dew_point)"               # C
+        #["D"]="$(extract_var "$DATA" wind_dir)"                # direction
+        #["e"]="$(extract_var "$DATA" wind_dir_deg)"            # degrees
+        #["E"]="$(extract_var "$DATA" maximum_gust_kmh)"        # km/h
+        #["f"]="$(extract_var "$DATA" maximum_gust_spd)"        # knots
+        #["F"]="$(extract_var "$DATA" maximum_gust_dir)"        # direction
+        #["g"]="$(extract_var "$DATA" gust_kmh)"                # km/h
+        #["G"]="$(extract_var "$DATA" wind_gust_spd)"           # knots
+        #["h"]="$(extract_var "$DATA" rel-humidity)"            # %
 
-        ["m"]="$(extract_var "$DATA" minimum_air_temperature)" # C
-        ["M"]="$(extract_var "$DATA" maximum_air_temperature)" # C
+        #["m"]="$(extract_var "$DATA" minimum_air_temperature)" # C
+        #["M"]="$(extract_var "$DATA" maximum_air_temperature)" # C
 
-        ["O"]="$(extract_var "$DATA" qnh_pres)"                # hPa
-        ["p"]="$(extract_var "$DATA" pres)"                    # hPa
-        ["P"]="$(extract_var "$DATA" msl_pres)"                # hPa
+        #["O"]="$(extract_var "$DATA" qnh_pres)"                # hPa
+        #["p"]="$(extract_var "$DATA" pres)"                    # hPa
+        #["P"]="$(extract_var "$DATA" msl_pres)"                # hPa
 
-        ["q"]="$(extract_var "$DATA" rain_hr)"                 # mm
-        ["Q"]="$(extract_var "$DATA" rain_ten)"                # mm
-        ["r"]="$(extract_var "$DATA" rainfall)"                # mm
-        ["R"]="$(extract_var "$DATA" rainfall_24hr)"           # mm
-        ["s"]="$(extract_var "$DATA" wind_spd_kmh)"            # km/h
-        ["S"]="$(extract_var "$DATA" wind_spd)"                # knots
-        ["t"]="$(extract_var "$DATA" air_temperature)"         # C
-        ["T"]="$(extract_var "$DATA" apparent_temp)"           # C
-        ["u"]="$(extract_var "$DATA" delta_t)"                 # C
+        #["q"]="$(extract_var "$DATA" rain_hr)"                 # mm
+        #["Q"]="$(extract_var "$DATA" rain_ten)"                # mm
+        #["r"]="$(extract_var "$DATA" rainfall)"                # mm
+        #["R"]="$(extract_var "$DATA" rainfall_24hr)"           # mm
+        #["s"]="$(extract_var "$DATA" wind_spd_kmh)"            # km/h
+        #["S"]="$(extract_var "$DATA" wind_spd)"                # knots
+        #["t"]="$(extract_var "$DATA" air_temperature)"         # C
+        #["T"]="$(extract_var "$DATA" apparent_temp)"           # C
+        #["u"]="$(extract_var "$DATA" delta_t)"                 # C
 
-        ["v"]="$(extract_var "$DATA" vis_km)"                  # km
+        #["v"]="$(extract_var "$DATA" vis_km)"                  # km
 
-        ["z"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
-        ["Z"]="$(echo $DEGREES)"
-    )
+        #["z"]="$(echo $DATA | xpath -q -e 'string(//period/@time-local)')"
+        #["Z"]="$(echo $DEGREES)"
+    #)
 
-    #echo "${obs[@]}"
-    #printf "%s %'.0f %'.0f %'.0f%sC" "mac" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
-    #printf "m%'.0f a%'.0f c%'.0f%sC" "${obs[M]}" "${obs[T]}" "${obs[t]}" "${obs[Z]}"
-    #printf "m%'.0f%sC a%'.0f%sC c%'.0f%sC" "${obs[M]}" "${obs[Z]}" "${obs[T]}" "${obs[Z]}" "${obs[t]}" "${obs[Z]}"
-    printf "%s %'.0f%sC / %'.0f%sC" "$FCAST" "${obs[T]}" "$DEGREES" "${obs[t]}" "$DEGREES"
+    #printf "%s %'.0f%sC / %'.0f%sC" "$FCAST" "${obs[T]}" "$DEGREES" "${obs[t]}" "$DEGREES"
+
+    #AT="$(extract_var "$DATA" apparent_temp)"
+    #RT="$(extract_var "$DATA" air_temperature)"
+    #printf "%s %'.0f%sC / %'.0f%sC" "$FCAST" "$AT" "$DEGREES" "$RT" "$DEGREES"
+#}
+
+function fcast_obs() {
+    OBS_F=$(get_file "$1"_OBS)
+    DATA="$(echo $OBS_F | xpath -q -e '//station[@description='"'$3'"']')"
+    FCAST_F=$(get_file "$1"_FCAST)
+    FCAST="$(forecast_location "$FCAST_F" "$2")"
+    AT="$(extract_var "$DATA" apparent_temp)"
+    RT="$(extract_var "$DATA" air_temperature)"
+    printf "%s %'.0f%sC / %'.0f%sC" "$FCAST" "$AT" "$DEGREES" "$RT" "$DEGREES"
 }
-
-
 
 for ARG in "$@"
 do
@@ -266,6 +274,12 @@ do
         *)
     esac
 done
+
+
+# one-line weather report and current obs
+if [ ${station:+1} ] && [ ${state:+1} ] && [ ${forecast_location:+1} ]; then
+    fcast_obs "$state" "$forecast_location" "$station"
+fi
 
 
 
@@ -325,24 +339,26 @@ fi
 
 
 # location forecast
-if [ ${forecast_location:+1} ] && [ ${state:+1} ]; then
-    f=$(get_file "$state"_FCAST)
-    if [ ${pretty:+1} ]; then
-        forecast_location "$f" "$forecast_location" "$pretty"
-    else
-        forecast_location "$f" "$forecast_location"
-    fi
-fi
+#if [ ${forecast_location:+1} ] && [ ${state:+1} ]; then
+#    f=$(get_file "$state"_FCAST)
+#    if [ ${pretty:+1} ]; then
+#        forecast_location "$f" "$forecast_location" "$pretty"
+#    else
+#        forecast_location "$f" "$forecast_location"
+#    fi
+#fi
 
 
-# station observations
-if [ ${station:+1} ] && [ ${state:+1} ]; then
-    if [ ${pretty:+1} ]; then
-        obs_station "$state" "$station" "$pretty"
-    else
-        obs_station "$state" "$station" "$format"
-    fi
-fi
+# station observation
+#if [ ${station:+1} ] && [ ${state:+1} ]; then
+#    if [ ${pretty:+1} ]; then
+#        obs_station "$state" "$station" "$pretty"
+#    else
+#        obs_station "$state" "$station" "$format"
+#    fi
+#fi
+
+
 
 
 

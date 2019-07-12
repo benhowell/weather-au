@@ -48,7 +48,7 @@ bash weather-au [options]
 ```
 * show single line station (location) forecast, current *apparent* temperature and current *actual* temperature
 ```
---station=[station]
+--station=[station] --forecast-location=[location]
 ```
 
 
@@ -58,7 +58,7 @@ Hardcoded for the moment, format string is WIP
 
 e.g
 ```
-bash weather-au --station="Hobart" --state=TAS
+bash weather-au --station="Hobart" --forecast-location="Hobart" --state=TAS
 ```
 Format: precis [probability_of_precipitation precipitation_range] air_temperature_maximum | apparent_temp / temp
 
