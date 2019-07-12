@@ -46,7 +46,7 @@ bash weather-au [options]
 ```
 --forecast-location=[location]
 ```
-* show single line station (location) forecast, current *apparent* temperature and current *actual* temperature
+* show single line station forecast, current *apparent* temperature and current *actual* temperature (Note: station and forecast-locations are often not the same
 ```
 --station=[station] --forecast-location=[location]
 ```
