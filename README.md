@@ -54,7 +54,7 @@ bash weather-au [options]
 
 
 ### Example single line station output.
-Hardcoded for the moment, format string is WIP
+Format string is WIP
 
 e.g
 ```
